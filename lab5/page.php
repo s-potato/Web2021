@@ -5,8 +5,6 @@ class Page
     private string $title;
     private int $year;
     private string $copyright;
-    private const SPECIALC = array("&", "\"", "'", "<", ">");
-    private const REPLACEC = array("&amp;", "&quot;", "&#039;", "&lt;", "&gt;");
 
     public function __construct()
     {
@@ -32,8 +30,10 @@ class Page
 
         $this->addHeader();
         $this->addFooter();
-        $this->page = "<title>".$this->title."</title>".$this->page;
-        str_replace($this::SPECIALC, $this::REPLACEC, $this->page);
+        $this->page = "<title>" . $this->title . "</title>" . $this->page;
+        $SPECIALC = array("&", "\"", "'", "<", ">", "\n");
+        $REPLACEC = array("&amp;", "&quot;", "&#039;", "&lt;", "&gt;", "");
+        $this->page = str_replace($SPECIALC, $REPLACEC, $this->page);
         return $this->page;
     }
 }
@@ -48,10 +48,13 @@ class Page
 
 <?php
 if (isset($_POST["submit"])) {
+    $SPECIALC = array("\n");
+    $REPLACEC = array("");
     $submitted = $_POST["submit"];
     $content = $_POST["content"];
+    $content = str_replace($SPECIALC, $REPLACEC, $content);
     $file = fopen('data.txt', 'a');
-    fwrite($file, $content."\n");
+    fwrite($file, $content . "\n");
     fclose($file);
 } else if (isset($_POST["clear"])) {
     $file = fopen('data.txt', 'w');
@@ -61,7 +64,7 @@ if (isset($_POST["submit"])) {
 $pages = array();
 if (file_exists('data.txt')) {
     foreach (explode("\n", file_get_contents('data.txt')) as $content) {
-        if ($content == ''){
+        if ($content == '') {
             continue;
         }
         $page = new Page();
